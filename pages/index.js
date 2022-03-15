@@ -1,0 +1,169 @@
+import Head from 'next/head';
+import { ethers } from 'ethers';
+import { useState, useEffect } from 'react';
+import abi from './abi.json';
+
+export default function Home() {
+  const provider = new ethers.providers.getDefaultProvider();
+  // default contract is uwucrew :3
+  const [contractAddr, setContractAddr] = useState(
+    '0xF75140376D246D8B1E5B8a48E3f00772468b3c0c'
+  );
+  const contract = new ethers.Contract(contractAddr, abi, provider);
+  const [txs, setTxs] = useState([]);
+  const [blockNum, setBlockNum] = useState();
+  const filterNone = contract.filters.Transfer(null, null, null); // to get old events
+  let currentBlockNum;
+  const [count, setCount] = useState(0);
+
+  const handleTransfer = async (from, to, id) => {
+    let type;
+
+    if (from === ethers.constants.AddressZero) {
+      type = 'mint';
+    } else {
+      type = 'transfer';
+    }
+    let tokenURI = await contract.tokenURI(id);
+    const ipfsStartURI = 'ipfs://';
+    if (tokenURI.startsWith(ipfsStartURI)) {
+      tokenURI = `https://ipfs.io/ipfs/${tokenURI.subString(
+        ipfsStartURI.length
+      )}`;
+    }
+
+    let tokenMetadataJSON = await fetch(tokenURI).then((response) =>
+      response.json()
+    );
+    let imageURL = tokenMetadataJSON['image'];
+    let name = tokenMetadataJSON['name'];
+    setTxs((prev) => [
+      {
+        type,
+        from,
+        to,
+        id: id.toString(),
+        name,
+        imageURL,
+        tokenURI,
+      },
+      ...prev,
+    ]);
+  };
+
+  // Run only when contractAddr set
+  useEffect(() => {
+    currentBlockNum = async () => provider.getBlockNumber();
+    setBlockNum(1);
+    const getBlockNumber = async () => {
+      currentBlockNum = await provider.getBlockNumber();
+      setBlockNum(currentBlockNum);
+    };
+    getBlockNumber();
+    console.log(currentBlockNum);
+    const fetchHistoricalTransfers = async () => {
+      // const events = await contract.queryFilter(
+      //   filterNone,
+      //   14380000 - 3000,
+      //   "last"
+      // );
+      const events = await contract.queryFilter(
+        filterNone,
+        -3000 // latest 3000 blocks
+      );
+      events.forEach((event) => {
+        // args are from, to, id
+        handleTransfer(event.args[0], event.args[1], event.args[2]);
+        console.log(event);
+      });
+    };
+    fetchHistoricalTransfers();
+    contract.on('Transfer', handleTransfer);
+    return () => {
+      // cleanup function
+      contract.removeAllListeners('Transfer');
+      setTxs([]);
+    };
+  }, [contractAddr]);
+
+  return (
+    <div data-theme="synthwave">
+      <Head>
+        <title>NFT headshot sniper</title>
+      </Head>
+      <div class="hero min-h-[40%] bg-base-300">
+        <div class="hero-content text-center">
+          <div class="max-w-md">
+            <h1 class="prose prose-headings text-5xl font-bold">NFT Tracker</h1>
+            <p class="prose py-6">Monitor movement of NFTs in realtime</p>
+            <button class="btn btn-secondary">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                class="fill-current"
+              >
+                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
+              </svg>
+              <a
+                class="px-2 lowercase"
+                href="https://twitter.com/tsubased/"
+                target="_blank"
+              >
+                @tsubased
+              </a>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-center bg-base-100">
+        <div class="flex flex-col m-8">
+          <div class="my-8 form-control w-full max-w-xs">
+            <label class="label">
+              <span class="label-text">Contract Address</span>
+            </label>
+            <input
+              type="text"
+              placeholder="0xAddress..."
+              class="input input-bordered w-full max-w-xs"
+            ></input>
+          </div>
+          {txs &&
+            txs.map((tx, index) => (
+              <div
+                key={index}
+                class="card my-4 lg:card-side bg-base-200 shadow-lg md:max-w-2xl"
+                // class="card my-4 lg:card-side bg-primary-content shadow-xl md:max-w-2xl"
+              >
+                <figure>
+                  <img src={tx.imageURL} alt="Album"></img>
+                </figure>
+                <div class="card-body">
+                  <div class="prose prose-headings">
+                    <h2 class="card-title">{tx.name}</h2>
+                  </div>
+                  <p class="prose">From: {tx.from}</p>
+                  <p class="prose">To: {tx.to}</p>
+                  <p class="prose">{tx.tokenURI}</p>
+                  <div class="card-actions justify-end">
+                    <a
+                      href={`https://opensea.io/assets/${contractAddr}/${tx.id}`}
+                      target="_blank"
+                    >
+                      <button class="btn btn-primary">View Opensea</button>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          <button class="btn">{blockNum}</button>
+          <p>Current Block {blockNum}</p>
+          <p>Current count {count}</p>
+          {/* //<p>Items count {historicalItems.length}</p> */}
+          <button onClick={() => setCount(count + 1)}>Click me</button>
+        </div>
+      </div>
+    </div>
+  );
+}
