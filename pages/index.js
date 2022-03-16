@@ -171,7 +171,7 @@ export default function Home() {
                 ref={contractAddrInput}
               ></input>
               <button
-                class="btn btn-square"
+                class="btn btn-secondary btn-square"
                 onClick={() => handleAddrClick(contractAddrInput.current.value)}
               >
                 <svg
