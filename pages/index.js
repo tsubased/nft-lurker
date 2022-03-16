@@ -145,7 +145,7 @@ export default function Home() {
                   <div className="prose prose-headings">
                     <h2 className="card-title">{tx.name}</h2>
                   </div>
-                  <p className="prose">From: {tx.from}</p>
+                  <p className="prose break-words">From: {tx.from}</p>
                   <p className="prose">To: {tx.to}</p>
                   <p className="prose">{tx.tokenURI}</p>
                   <div className="card-actions justify-end">
