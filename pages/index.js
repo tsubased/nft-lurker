@@ -167,7 +167,7 @@ export default function Home() {
               <input
                 type="text"
                 placeholder="0xAddress..."
-                className="input input-bordered input-secondary w-full max-w-xs"
+                className="prose input input-bordered input-secondary w-full max-w-xs"
                 ref={contractAddrInput}
               ></input>
               <button
