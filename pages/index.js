@@ -119,7 +119,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div className="bg-base-100">
+      <div className="flex bg-base-100">
         <div className="flex flex-col mx-8">
           <div className="my-8 form-control w-full max-w-xs">
             <label className="label">
