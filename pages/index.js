@@ -145,7 +145,11 @@ export default function Home() {
                 // className="card my-4 lg:card-side bg-primary-content shadow-xl md:max-w-2xl"
               >
                 <figure>
-                  <img src={tx.imageURL} alt={`image of ${tx.name}`}></img>
+                  <img
+                    className="min-h-full"
+                    src={tx.imageURL}
+                    alt={`image of ${tx.name}`}
+                  ></img>
                 </figure>
                 <div className="card-body">
                   <div className="prose prose-headings">
