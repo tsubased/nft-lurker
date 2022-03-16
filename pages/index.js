@@ -140,7 +140,7 @@ export default function Home() {
       <div className="md:flex md:justify-center bg-base-100">
         <div className="flex flex-col mx-8">
           {errorMsg && (
-            <div class="my-4 alert alert-error shadow-lg">
+            <div class="mt-4 alert alert-error shadow-lg">
               <div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
