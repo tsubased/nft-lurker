@@ -6,9 +6,9 @@ import abi from './abi.json';
 export default function Home() {
   const ipfsIOSitePrefix = 'https://ipfs.io/ipfs/';
   const provider = new ethers.providers.getDefaultProvider();
-  // default contract is bayc, for now
+  // default contract is whatever i decide to test with lol
   const [contractAddr, setContractAddr] = useState(
-    '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D'
+    '0x364C828eE171616a39897688A831c2499aD972ec'
   );
   const contract = new ethers.Contract(contractAddr, abi, provider);
   const [txs, setTxs] = useState([]);
@@ -27,7 +27,6 @@ export default function Home() {
     }
     let tokenURI = await contract.tokenURI(id);
     const ipfsStartURI = 'ipfs://';
-    const isIPFS = tokenURI.startsWith(ipfsStartURI);
     if (tokenURI.startsWith(ipfsStartURI)) {
       tokenURI = `${ipfsIOSitePrefix}${tokenURI.substring(
         ipfsStartURI.length
@@ -142,7 +141,7 @@ export default function Home() {
             txs.map((tx, index) => (
               <div
                 key={index}
-                className="card my-4 lg:card-side bg-base-200 shadow-lg md:max-w-2xl"
+                className="card my-4 md:card-side bg-base-200 shadow-md md:max-w-2xl"
                 // className="card my-4 lg:card-side bg-primary-content shadow-xl md:max-w-2xl"
               >
                 <figure>
