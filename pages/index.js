@@ -145,12 +145,13 @@ export default function Home() {
                 // className="card my-4 lg:card-side bg-primary-content shadow-xl md:max-w-2xl"
               >
                 <figure>
-                  <img src={tx.imageURL} alt="Album"></img>
+                  <img src={tx.imageURL} alt={`image of ${tx.name}`}></img>
                 </figure>
                 <div className="card-body">
                   <div className="prose prose-headings">
                     <h2 className="card-title">{tx.name}</h2>
                   </div>
+                  <div class="badge badge-secondary">{tx.type}</div>
                   <p className="prose break-normal hover:break-words">
                     From: {tx.from}
                   </p>
