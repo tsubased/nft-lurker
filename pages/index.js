@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import abi from './abi.json';
 
 export default function Home() {
+  const ipfsIOSitePrefix = 'https://ipfs.io/ipfs/';
   const provider = new ethers.providers.getDefaultProvider();
-  // default contract is uwucrew :3
+  // default contract is bayc, for now
   const [contractAddr, setContractAddr] = useState(
-    '0xF75140376D246D8B1E5B8a48E3f00772468b3c0c'
+    '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D'
   );
   const contract = new ethers.Contract(contractAddr, abi, provider);
   const [txs, setTxs] = useState([]);
@@ -26,16 +27,22 @@ export default function Home() {
     }
     let tokenURI = await contract.tokenURI(id);
     const ipfsStartURI = 'ipfs://';
+    const isIPFS = tokenURI.startsWith(ipfsStartURI);
     if (tokenURI.startsWith(ipfsStartURI)) {
-      tokenURI = `https://ipfs.io/ipfs/${tokenURI.subString(
+      tokenURI = `${ipfsIOSitePrefix}${tokenURI.substring(
         ipfsStartURI.length
       )}`;
     }
-
+    // console.log('tokenURI is ' + tokenURI);
     let tokenMetadataJSON = await fetch(tokenURI).then((response) =>
       response.json()
     );
     let imageURL = tokenMetadataJSON['image'];
+    if (imageURL.startsWith(ipfsStartURI)) {
+      imageURL = `${ipfsIOSitePrefix}${imageURL.substring(
+        ipfsStartURI.length
+      )}`;
+    }
     let name = tokenMetadataJSON['name'];
     setTxs((prev) => [
       {
@@ -74,7 +81,7 @@ export default function Home() {
       events.forEach((event) => {
         // args are from, to, id
         handleTransfer(event.args[0], event.args[1], event.args[2]);
-        console.log(event);
+        //console.log(event);
       });
     };
     fetchHistoricalTransfers();
