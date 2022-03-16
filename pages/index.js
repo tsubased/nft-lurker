@@ -1,17 +1,19 @@
 import Head from 'next/head';
 import { ethers } from 'ethers';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import abi from './abi.json';
-
+1;
 export default function Home() {
   const ipfsIOSitePrefix = 'https://ipfs.io/ipfs/';
   const provider = new ethers.providers.getDefaultProvider();
   // default contract is whatever i decide to test with lol
+  const contractAddrInput = useRef();
   const [contractAddr, setContractAddr] = useState(
     '0x364C828eE171616a39897688A831c2499aD972ec'
   );
   const contract = new ethers.Contract(contractAddr, abi, provider);
   const [txs, setTxs] = useState([]);
+  const [errorMsg, setErrorMsg] = useState();
   const [blockNum, setBlockNum] = useState();
   const filterNone = contract.filters.Transfer(null, null, null); // to get old events
   let currentBlockNum;
@@ -55,6 +57,15 @@ export default function Home() {
       },
       ...prev,
     ]);
+  };
+
+  const handleAddrClick = (addrStr) => {
+    if (ethers.utils.isAddress(addrStr)) {
+      setContractAddr(addrStr);
+      setErrorMsg();
+    } else {
+      setErrorMsg('Contract address is invalid!');
+    }
   };
 
   // Run only when contractAddr set
@@ -125,17 +136,60 @@ export default function Home() {
           </div>
         </div>
       </div>
+
       <div className="md:flex md:justify-center bg-base-100">
         <div className="flex flex-col mx-8">
-          <div className="my-8 form-control w-full max-w-xs">
+          {errorMsg && (
+            <div class="my-4 alert alert-error shadow-lg">
+              <div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="stroke-current flex-shrink-0 h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span>{errorMsg}</span>
+              </div>
+            </div>
+          )}
+          <div className="my-4 form-control w-full max-w-xs">
             <label className="label">
               <span className="label-text">Contract Address</span>
             </label>
-            <input
-              type="text"
-              placeholder="0xAddress..."
-              className="input input-bordered w-full max-w-xs"
-            ></input>
+            <div className="input-group">
+              <input
+                type="text"
+                placeholder="0xAddress..."
+                className="input input-bordered input-secondary w-full max-w-xs"
+                ref={contractAddrInput}
+              ></input>
+              <button
+                class="btn btn-square"
+                onClick={() => handleAddrClick(contractAddrInput.current.value)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
           {txs &&
             txs.map((tx, index) => (
@@ -151,7 +205,7 @@ export default function Home() {
                     alt={`image of ${tx.name}`}
                   ></img>
                   <figcaption className="absolute top-0 left-0 p-2">
-                    <div class="badge badge-accent">New</div>
+                    <div class="badge badge-accent">NEW</div>
                   </figcaption>
                 </figure>
                 <div className="card-body">
