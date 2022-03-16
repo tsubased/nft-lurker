@@ -145,8 +145,12 @@ export default function Home() {
                   <div className="prose prose-headings">
                     <h2 className="card-title">{tx.name}</h2>
                   </div>
-                  <p className="prose hover:break-words">From: {tx.from}</p>
-                  <p className="prose hover:break-words">To: {tx.to}</p>
+                  <p className="prose break-normal hover:break-words">
+                    From: {tx.from}
+                  </p>
+                  <p className="prose break-normal hover:break-words">
+                    To: {tx.to}
+                  </p>
                   <div className="card-actions justify-end">
                     <a
                       href={`https://opensea.io/assets/${contractAddr}/${tx.id}`}
